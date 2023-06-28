@@ -1,6 +1,7 @@
 # import subprocess
 # from pprint import pprint
 from utils.utils import Utils
+from utils.fileSystemUtils import FileSystemUtils
 
 class Connection:
     def __init__(self):
@@ -10,7 +11,7 @@ class Connection:
     def checkUSBConnection(self):
         # Run cmd command to check if device is connected to Windows machine.
         shellCommand = "cmd.exe /C usbipd list"
-        shellCommandResult =Utils.runCommand(shellCommand)
+        shellCommandResult,shell_command_return_code = Utils.runCommand(shellCommand)
 
         #Above command outputs currently connected and previously connected 
         #devices. We want to check if device is currently connected, hence 
@@ -46,7 +47,7 @@ class Connection:
         # Attaches USB devices to WSL env.
         busId = connectedDevice.get("BUSID")
         shellCommand = f"cmd.exe /C usbipd wsl {key} -b {busId}"
-        shellCommandResult = Utils.runCommand(shellCommand)
+        shellCommandResult,shell_command_return_code = Utils.runCommand(shellCommand)
 
         lsUsbCommand = "lsusb"
         Utils.runCommand(lsUsbCommand)
@@ -57,13 +58,13 @@ class Connection:
         # server start.
         killCommand = "sudo -S adb kill-server"
         passwordInput = f"{self.wslPassword}\n"
-        killResult = Utils.runCommand(killCommand, input=passwordInput)
+        killResult,kill_command_return_code = Utils.runCommand(killCommand, input=passwordInput)
         
         startCommand = "sudo adb start-server"
-        startResult = Utils.runCommand(startCommand)
+        startResult,start_command_return_code = Utils.runCommand(startCommand)
         
         adbListDevices = "adb devices"
-        adbListDevicesResult = Utils.runCommand(adbListDevices)
+        adbListDevicesResult,adbList_command_return_code = Utils.runCommand(adbListDevices)
 
         adbConnectionStatus = self.checkAdbConnectionStatus(adbListDevicesResult)
         # return adbListDevicesResult, adbConnectionStatus
