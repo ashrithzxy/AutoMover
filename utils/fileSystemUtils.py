@@ -9,24 +9,23 @@ class FileSystemUtils:
         pass
 
     @staticmethod
-    def check_and_create_directory(parent_dir_path, dirname):
-        """Checks if a dir corresponding to creent year exists in the backup 
-        location. If not, creates it."""
-        current_year = dt.now().year
+    def check_and_create_directory(parent_dir_path=None, dirname=None, direct_bash=False, direct_command=None):
+        """Creates required backup directories. Makes parent dirs as needed 
+        using the -p flag with mkdir. 
 
-        find_directory_command = f"find {parent_dir_path} -type d -path '{dirname}'"
-        find_directory_command_execute, find_directory_command_return_code = Utils.runCommand(find_directory_command)
-
-        if bool(find_directory_command_execute) is False:
-            print(f"directory named '{dirname}' does not exist. Creating.")
-            mkdir_command = f"mkdir -p {parent_dir_path}{dirname}"
-            execute_mkdir_command, mkdir_command_return_code = Utils.runCommand(mkdir_command)
-            if mkdir_command_return_code == 0:
-                return True 
-            else:
-                return False
-        print(f"directory named '{dirname}' already exists.")
-        return True
+        Returns:
+            Bool: True if return code is 0(Command executed without any errors.), 
+                  False is return code is 1(Error during command execution).
+        """        
+        # sample_command = "bash -c 'mkdir -p ~/AutoMoverBackup/2025/June/Images/{Whatsapp,Instagram,Snapseed}'"
+        mkdir_command = direct_command
+        execute_mkdir_command, mkdir_command_return_code = Utils.runCommand(mkdir_command)
+        return not bool(mkdir_command_return_code)
 
 if __name__ == "__main__":
-    print(FileSystemUtils.check_and_create_directory(FileSystemUtils.BACKUP_LOCATION,dt.now().year))
+    location = "~/AutoMoverBackup/2029/June/Images/{Whatsapp,Instagram,Snapseed}"
+    format = "Images/"
+    dirname = "{Whatsapp,Instagram,Snapseed}"
+    # dirname = "2029/June/Images/{Whatsapp,Instagram,Snapseed}"
+    # FileSystemUtils.BACKUP_LOCATION,dt.now().year)
+    print(FileSystemUtils.check_and_create_directory(location,format,dirname))

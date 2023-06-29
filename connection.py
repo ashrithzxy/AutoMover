@@ -1,12 +1,13 @@
-# import subprocess
-# from pprint import pprint
+import os
 from utils.utils import Utils
 from utils.fileSystemUtils import FileSystemUtils
+import constants
 
 class Connection:
     def __init__(self):
-        self.wslPassword = "784512"
-        self.deviceModelNumber = "ZF62226S37"
+        self.wslPassword = os.environ.get("AUTOMOVER_PASS")
+        self.deviceModelNumber = constants.MOTOG6
+        self.device_name = "moto"
 
     def checkUSBConnection(self):
         # Run cmd command to check if device is connected to Windows machine.
@@ -26,7 +27,7 @@ class Connection:
             busid, vid_pid, *deviceParts, state = line.split()
             device = " ".join(deviceParts)
             print(f'devices list: {device}')
-            if "moto" in device:
+            if self.device_name in device:
                 deviceConnected = True
                 connectedDevice['BUSID'] = busid
                 connectedDevice['VID_PID'] = vid_pid
@@ -73,13 +74,6 @@ class Connection:
     def checkAdbConnectionStatus(self,adbListDevicesResult):
         deviceList = adbListDevicesResult.split("\n")
         return any(self.deviceModelNumber in i for i in deviceList)
-
-    # def runCommand(self,command,**kwargs):
-    #     # Runs shell command using py subprocess module.
-    #     run = subprocess.run(command,shell=True, capture_output=True, text=True,**kwargs)
-    #     result = run.stdout
-    #     print(f'Shell command result:\n\n------------\n{result}------------')
-    #     return result
     
     def establishAdbConnection(self):
         deviceConnectionStatus, connectedDevice = self.checkUSBConnection()

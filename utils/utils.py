@@ -14,8 +14,3 @@ class Utils:
         print(f'\n>>>Command: {command}')
         print(f'>>>Shell command result:\n\n------------\n{result}------------')
         return result, return_code
-    
-
-    @staticmethod
-    def get_month_name(dtObject, ):
-        pass
