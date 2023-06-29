@@ -6,7 +6,9 @@ from datetime import datetime as dt
 
 class Backup:
     def __init__(self):
-        self.backup_dir = constants.BACKUP_LOCATION
+        self.device_owner = "Ashrith"
+        self.device_name = "MotorolaG6"
+        self.backup_dir = f"{constants.BACKUP_LOCATION}{self.device_owner}/{self.device_name}/"
         self.now = dt.now()
         self.strftime_pattern = "%Y%m"
         self.current_year  = self.now.year
@@ -37,6 +39,9 @@ class Backup:
         Creates a backup of device media from Whatsapp, Camera, Snapseed, 
         Instagram etc.
         """
+        #adb shell find "/sdcard/WhatsApp/Media/WhatsApp\ Images/" -type f 
+        # | grep "IMG-202306" 
+        # | xargs -I {} adb pull {} ~/motoG6Backup/backup/
         backup_command = constants.BACKUP_COMMAND.format(source,pattern,"{}","{}",destination)
         backup_command_execute, backup_command_return_code = Utils.runCommand(backup_command)
         return not bool(backup_command_return_code)
