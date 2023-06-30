@@ -4,6 +4,8 @@ I don't like keeping years worth of data on my phone and then dump it all at onc
 
 Currently this script is programmed to run on a system that is a combination of Windows and Linux, but, eventually I may convert it to run solely on Linux or Windows. Make it more plug-n-play. Not a promise, it depends on my need.
 
+**IMPORTANT NOTE**: The source directories might be different depending on the OS. I use a really old device and the new stuff probably works differently, but, just changing the source directories in the ```constants.py``` should work.
+
 Here's the system I'm running:
 
 - Python 3.8.10
