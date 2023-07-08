@@ -1,135 +1,135 @@
 import os
 from utils.utils import Utils
-from utils.fileSystemUtils import FileSystemUtils
+from utils.file_system_utils import FileSystemUtils
 import constants
 
 class Connection:
     def __init__(self):
-        self.wslPassword = os.environ.get("AUTOMOVER_PASS")
-        self.deviceModelNumber = constants.MOTOG6
+        self.wsl_password = os.environ.get("AUTOMOVER_PASS")
+        self.device_model_number = constants.MOTOG6
         self.device_name = "moto"
 
-    def checkUSBConnection(self):
+    def check_usb_connection(self):
         # Run cmd command to check if device is connected to Windows machine.
-        shellCommand = "cmd.exe /C usbipd list"
-        shellCommandResult,shell_command_return_code = Utils.runCommand(shellCommand)
+        shell_command = "cmd.exe /C usbipd list"
+        shell_command_result,shell_command_return_code = Utils.run_command(shell_command)
 
         #Above command outputs currently connected and previously connected 
         #devices. We want to check if device is currently connected, hence 
         #splitting the output.
-        sections = shellCommandResult.split('\n\n')
-        deviceConnected = False # Flag to store device connection state.
-        connectedDevice = dict.fromkeys(['BUSID','VID_PID','DEVICE','STATE'],"")
+        sections = shell_command_result.split('\n\n')
+        device_connected = False # Flag to store device connection state.
+        connected_device = dict.fromkeys(['BUSID','VID_PID','DEVICE','STATE'],"")
 
         # Process the "Connected" section.
         connected_lines = sections[0].split('\n')[2:]
         for line in connected_lines:
-            busid, vid_pid, *deviceParts, state = line.split()
-            device = " ".join(deviceParts)
+            bus_id, vid_pid, *device_parts, state = line.split()
+            device = " ".join(device_parts)
             print(f'devices list: {device}')
             if self.device_name in device:
-                deviceConnected = True
-                connectedDevice['BUSID'] = busid
-                connectedDevice['VID_PID'] = vid_pid
-                connectedDevice['DEVICE'] = device
-                connectedDevice['STATE'] = state
+                device_connected = True
+                connected_device['BUSID'] = bus_id
+                connected_device['VID_PID'] = vid_pid
+                connected_device['DEVICE'] = device
+                connected_device['STATE'] = state
                 break
-        return deviceConnected, connectedDevice
+        return device_connected, connected_device
     
-    def checkWSLAttachment(self, connectedDevice):
+    def check_wsl_attachment(self, connected_device):
         # Checks if USB device is available within the WSL env.
-        state = connectedDevice.get('STATE')
+        state = connected_device.get('STATE')
         if state.casefold() in ['attached','ubuntu']:
             return True
         else:
             return False
         
-    def wslAttachDetach(self, connectedDevice, key="attach"):
+    def wsl_attach_detach(self, connected_device, key="attach"):
         # Attaches USB devices to WSL env.
-        busId = connectedDevice.get("BUSID")
-        shellCommand = f"cmd.exe /C usbipd wsl {key} -b {busId}"
-        shellCommandResult,shell_command_return_code = Utils.runCommand(shellCommand)
+        busId = connected_device.get("BUSID")
+        shell_command = f"cmd.exe /C usbipd wsl {key} -b {busId}"
+        shell_command_result,shell_command_return_code = Utils.run_command(shell_command)
 
-        lsUsbCommand = "lsusb"
-        Utils.runCommand(lsUsbCommand)
-        return shellCommandResult
+        ls_usb_command = "lsusb"
+        Utils.run_command(ls_usb_command)
+        return shell_command_result
     
-    def adbServer(self):
+    def abd_server(self):
         # Kill and start adb services as SU. Also list adb devices after 
         # server start.
-        killCommand = "sudo -S adb kill-server"
-        passwordInput = f"{self.wslPassword}\n"
-        killResult,kill_command_return_code = Utils.runCommand(killCommand, input=passwordInput)
+        kill_command = "sudo -S adb kill-server"
+        password_input = f"{self.wsl_password}\n"
+        kill_result,kill_command_return_code = Utils.run_command(kill_command, input=password_input)
         
-        startCommand = "sudo adb start-server"
-        startResult,start_command_return_code = Utils.runCommand(startCommand)
+        start_command = "sudo adb start-server"
+        start_result,start_command_return_code = Utils.run_command(start_command)
         
-        adbListDevices = "adb devices"
-        adbListDevicesResult,adbList_command_return_code = Utils.runCommand(adbListDevices)
+        adb_list_devices = "adb devices"
+        adb_list_devices_result,adbList_command_return_code = Utils.run_command(adb_list_devices)
 
-        adbConnectionStatus = self.checkAdbConnectionStatus(adbListDevicesResult)
-        # return adbListDevicesResult, adbConnectionStatus
-        return adbConnectionStatus
+        adb_connection_status = self.check_adb_connection_status(adb_list_devices_result)
+        # return adb_list_devices_result, adb_connection_status
+        return adb_connection_status
     
-    def checkAdbConnectionStatus(self,adbListDevicesResult):
-        deviceList = adbListDevicesResult.split("\n")
-        return any(self.deviceModelNumber in i for i in deviceList)
+    def check_adb_connection_status(self,adb_list_devices_result):
+        device_list = adb_list_devices_result.split("\n")
+        return any(self.device_model_number in i for i in device_list)
     
-    def establishAdbConnection(self):
-        deviceConnectionStatus, connectedDevice = self.checkUSBConnection()
-        print(f'Device Connection Status: {deviceConnectionStatus}')
-        print(f'Connected Device Details: {connectedDevice}')
+    def establish_adb_connection(self):
+        device_connection_status, connected_device = self.check_usb_connection()
+        print(f'Device Connection Status: {device_connection_status}')
+        print(f'Connected Device Details: {connected_device}')
 
-        adbConnectionStatus = False
-        if deviceConnectionStatus == False:
+        adb_connection_status = False
+        if device_connection_status == False:
             # Android phone was not connected to system.
             print("Please connect your Android phone before proceeding")
         else:
             count = 0
-            while adbConnectionStatus == False and count < 3:
+            while adb_connection_status == False and count < 3:
                 print(f"Attempt {count+1} at establishing ADB connection.")
                 # Android phone is connected to system, checking WSL attachment.
-                connectionState = connectedDevice.get("STATE","")
-                status = any(i in connectionState for i in ["ubuntu","attached"])
+                connection_state = connected_device.get("STATE","")
+                status = any(i in connection_state for i in ["ubuntu","attached"])
                 if status == True:
                     # Device attached to WSL env. Kill-starting Adb server.
                     print('Device is connected and attached to WSL')
-                    adbConnectionStatus = self.adbServer()
-                    print(f'Adb Connection Status: {adbConnectionStatus}')
+                    adb_connection_status = self.abd_server()
+                    print(f'Adb Connection Status: {adb_connection_status}')
                 else:
                     # Device not attached to WSL env. 
                     # Attaching USB device to WSL env and kill-starting Adb server.
                     print("Device is connected but not attached to WSL")
-                    self.wslAttachDetach(connectedDevice,"attach")
-                    adbConnectionStatus = self.adbServer()
-                    print(f'Adb Connection Status: {adbConnectionStatus}')
+                    self.wsl_attach_detach(connected_device,"attach")
+                    adb_connection_status = self.abd_server()
+                    print(f'Adb Connection Status: {adb_connection_status}')
                 
                 count += 1
 
-        return adbConnectionStatus
+        return adb_connection_status
 
 if __name__ == '__main__':
     media = Connection()
-    deviceConnectionStatus, connectedDevice = media.checkUSBConnection()
-    print(f'Device Connection Status: {deviceConnectionStatus}')
-    print(f'Connected Device Details: {connectedDevice}')
+    device_connection_status, connected_device = media.check_usb_connection()
+    print(f'Device Connection Status: {device_connection_status}')
+    print(f'Connected Device Details: {connected_device}')
 
-    if deviceConnectionStatus == False:
+    if device_connection_status == False:
         # Android phone was not connected to system.
         print("Please connect your Android phone before proceeding")
     else:
         # Android phone is connected to system, checking WSL attachment.
-        connectionState = connectedDevice.get("STATE","")
-        status = any(i in connectionState for i in ["ubuntu","attached"])
+        connection_state = connected_device.get("STATE","")
+        status = any(i in connection_state for i in ["ubuntu","attached"])
         if status == True:
             # Device attached to WSL env. Kill-starting Adb server.
             print('Device is connected and attached to WSL')
-            adbConnectionStatus = media.adbServer()
-            print(f'Adb Connection Status: {adbConnectionStatus}')
+            adb_connection_status = media.abd_server()
+            print(f'Adb Connection Status: {adb_connection_status}')
         else:
             # Device not attached to WSL env. 
             # Attaching USB device to WSL env and kill-starting Adb server.
             print("Device is connected but not attached to WSL")
-            media.wslAttachDetach(connectedDevice,"attach")
-            adbConnectionStatus = media.adbServer()
-            print(f'Adb Connection Status: {adbConnectionStatus}')
+            media.wsl_attach_detach(connected_device,"attach")
+            adb_connection_status = media.abd_server()
+            print(f'Adb Connection Status: {adb_connection_status}')

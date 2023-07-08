@@ -116,7 +116,7 @@ command_execute, command_return_code = Utils.runComman(command)
 if bool(command_return_code) is False:
     '''Required directory doesn't already exist. Create a new directory.'''
     mkdir_command = f"mkdir -p {parent_dir_path}{dirname}"
-    execute_mkdir_command, mkdir_command_return_code = Utils.runCommand(mkdir_command)
+    execute_mkdir_command, mkdir_command_return_code = Utils.run_command(mkdir_command)
 ```
 The above method could only find one directory at a time and could only make one directory at a time as well. This worked all right, as long as all the directories we created once, but it still doesn't make much sense to check them one by one. 
 

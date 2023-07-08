@@ -1,5 +1,3 @@
-import os
-from datetime import datetime as dt
 from .utils import Utils
 
 class FileSystemUtils:
@@ -19,7 +17,7 @@ class FileSystemUtils:
         """        
         # sample_command = "bash -c 'mkdir -p ~/AutoMoverBackup/2025/June/Images/{Whatsapp,Instagram,Snapseed}'"
         mkdir_command = direct_command
-        execute_mkdir_command, mkdir_command_return_code = Utils.runCommand(mkdir_command)
+        execute_mkdir_command, mkdir_command_return_code = Utils.run_command(mkdir_command)
         return not bool(mkdir_command_return_code)
 
 if __name__ == "__main__":

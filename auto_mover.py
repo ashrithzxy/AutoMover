@@ -3,9 +3,9 @@ from backup import Backup
 from pprint import pprint
 
 device = Connection()
-adbConnectionStatus = device.establishAdbConnection()
-print("Adb Connection Status is: ",adbConnectionStatus)
-if adbConnectionStatus is False:
+adb_connection_status = device.establish_adb_connection()
+print("Adb Connection Status is: ",adb_connection_status)
+if adb_connection_status is False:
     print('unable to establish adb connection. Check logs.')
 else:
     # start backup process.

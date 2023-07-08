@@ -1,6 +1,6 @@
 from pprint import pprint
 from utils.utils import Utils
-from utils.fileSystemUtils import FileSystemUtils
+from utils.file_system_utils import FileSystemUtils
 import constants
 from datetime import datetime as dt
 
@@ -34,7 +34,7 @@ class Backup:
             "error":None
         }
 
-    def createBackup(self, source=None, destination=None, pattern=None, **kwargs):
+    def create_backup(self, source=None, destination=None, pattern=None, **kwargs):
         """
         Creates a backup of device media from Whatsapp, Camera, Snapseed, 
         Instagram etc.
@@ -43,7 +43,7 @@ class Backup:
         # | grep "IMG-202306" 
         # | xargs -I {} adb pull {} ~/motoG6Backup/backup/
         backup_command = constants.BACKUP_COMMAND.format(source,pattern,"{}","{}",destination)
-        backup_command_execute, backup_command_return_code = Utils.runCommand(backup_command)
+        backup_command_execute, backup_command_return_code = Utils.run_command(backup_command)
         return not bool(backup_command_return_code)
 
         # return "current year and month dir ready for backup"
@@ -66,28 +66,6 @@ class Backup:
                 break
         
         return return_code
-            
-        # create_year_dir = FileSystemUtils.check_and_create_directory(self.backup_dir,self.current_year)
-        # if create_year_dir is False:
-        #     return False
-        
-        # create_month_dir = FileSystemUtils.check_and_create_directory(self.year_dir_path,self.current_month_name)
-        # if create_month_dir is False:
-        #     return False
-
-        # # # Creating image sub directories.
-        # # images_dir = "Images/"
-        # # sub_dir_list = ["Whatsapp","Snapseed","Instagram"]
-        # # for i in sub_dir_list:
-        # #     sub_dir_path = images_dir + i
-        # #     FileSystemUtils.check_and_create_directory(self.current_month_backup_dir,sub_dir_path)
-
-        # # ALL THE ABOVE SHOULD BE 1 SINGLE COMMAND.
-        # self.create_image_dirs()
-        # self.create_audio_dirs()
-        # self.create_video_dirs()
-
-        # return True
     
     def create_direct_command(self):
         """Creates a list containing filepaths for backup dirs to be created.
@@ -100,34 +78,6 @@ class Backup:
         command_list.append(self.current_month_backup_dir + "Audio/Whatsapp")
         command_list.append(self.current_month_backup_dir + "Video/{Whatsapp,Camera}")
         return command_list
-        
-    
-    # def create_image_dirs(self):
-    #     images_dir = "Images/"
-    #     sub_dir_list = ["Whatsapp","Snapseed","Instagram","Camera","Screenshots"]
-    #     for i in sub_dir_list:
-    #         sub_dir_path = images_dir + i
-    #         FileSystemUtils.check_and_create_directory(self.current_month_backup_dir,sub_dir_path)
-        
-    #     return True
-    
-    # def create_audio_dirs(self):
-    #     images_dir = "Audio/"
-    #     sub_dir_list = ["Whatsapp"]
-    #     for i in sub_dir_list:
-    #         sub_dir_path = images_dir + i
-    #         FileSystemUtils.check_and_create_directory(self.current_month_backup_dir,sub_dir_path)
-        
-    #     return True
-    
-    # def create_video_dirs(self):
-    #     images_dir = "Video/"
-    #     sub_dir_list = ["Whatsapp","Camera"]
-    #     for i in sub_dir_list:
-    #         sub_dir_path = images_dir + i
-    #         FileSystemUtils.check_and_create_directory(self.current_month_backup_dir,sub_dir_path)
-        
-    #     return True
 
     def whatsapp(self):
         """Creates backup of Whatsapp images, audio and videos.
@@ -138,7 +88,7 @@ class Backup:
         image_file_name_base_pattern = "IMG-"
         image_file_name_pattern = image_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
         image_destination = f"{self.current_month_backup_dir}/Images/Whatsapp/" 
-        image_backup_result = self.createBackup(image_source,image_destination,image_file_name_pattern)
+        image_backup_result = self.create_backup(image_source,image_destination,image_file_name_pattern)
         self.backup_summary["images"]["whatsapp"] = image_backup_result
 
         # Backing up Whatsapp Audio, not voice notes
@@ -146,7 +96,7 @@ class Backup:
         audio_file_name_base_pattern = "AUD-"
         audio_file_name_pattern = audio_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
         audio_destination = f"{self.current_month_backup_dir}/Audio/Whatsapp/" 
-        audio_backup_result = self.createBackup(audio_source,audio_destination,audio_file_name_pattern)
+        audio_backup_result = self.create_backup(audio_source,audio_destination,audio_file_name_pattern)
         self.backup_summary["audio"]["whatsapp"] = audio_backup_result
 
         # Backing up Whatsapp Videos
@@ -154,7 +104,7 @@ class Backup:
         video_file_name_base_pattern = "VID-"
         video_file_name_pattern = video_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
         video_destination = f"{self.current_month_backup_dir}/Video/Whatsapp/" 
-        video_backup_result = self.createBackup(video_source,video_destination,video_file_name_pattern)
+        video_backup_result = self.create_backup(video_source,video_destination,video_file_name_pattern)
         self.backup_summary["video"]["whatsapp"] = video_backup_result
 
     def snapseed(self):
@@ -164,7 +114,7 @@ class Backup:
         image_file_name_base_pattern = "IMG_"
         image_file_name_pattern = image_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
         image_destination = f"{self.current_month_backup_dir}/Images/Snapseed/" 
-        image_backup_result = self.createBackup(image_source,image_destination,image_file_name_pattern)
+        image_backup_result = self.create_backup(image_source,image_destination,image_file_name_pattern)
         self.backup_summary["images"]["snapseed"] = image_backup_result
 
     def camera(self):
@@ -176,13 +126,13 @@ class Backup:
         image_file_name_base_pattern = "IMG_"
         image_file_name_pattern = image_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
         image_destination = f"{self.current_month_backup_dir}/Images/Camera/" 
-        image_backup_result = self.createBackup(media_source,image_destination,image_file_name_pattern)
+        image_backup_result = self.create_backup(media_source,image_destination,image_file_name_pattern)
         self.backup_summary["images"]["camera"] = image_backup_result
 
         video_file_name_base_pattern = "VID_"
         video_file_name_pattern = video_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
         video_destination = f"{self.current_month_backup_dir}/Video/Camera/" 
-        video_backup_result = self.createBackup(media_source,video_destination,video_file_name_pattern)
+        video_backup_result = self.create_backup(media_source,video_destination,video_file_name_pattern)
         self.backup_summary["video"]["camera"] = video_backup_result
 
     def pictures(self):
@@ -196,7 +146,7 @@ class Backup:
             image_source = constants.PICTURES_MEDIA_BASEPATH + f"{dir_name}/"
             image_file_name_pattern = base_pattern + self.now.strftime(self.strftime_pattern)
             image_destination = f"{self.current_month_backup_dir}/Images/{dir_name}/" 
-            return_code = self.createBackup(image_source,image_destination,image_file_name_pattern)
+            return_code = self.create_backup(image_source,image_destination,image_file_name_pattern)
             self.backup_summary['images'][dir_name.casefold()] = return_code 
 
     def start_back_up(self):
@@ -215,15 +165,15 @@ class Backup:
         return self.backup_summary
 
 if __name__ == '__main__':
-    backupHelper = Backup()
+    backup_helper = Backup()
 
-    backup_dir_status = backupHelper.prepare_directories()
+    backup_dir_status = backup_helper.prepare_directories()
     if backup_dir_status is False:
         print("Backup destination not ready. Aborting backup process.")
     else:
-        backupHelper.whatsapp()
-        backupHelper.snapseed()
-        backupHelper.camera()
-        backupHelper.pictures()
+        backup_helper.whatsapp()
+        backup_helper.snapseed()
+        backup_helper.camera()
+        backup_helper.pictures()
     
-    pprint(backupHelper.backup_summary)
+    pprint(backup_helper.backup_summary)
