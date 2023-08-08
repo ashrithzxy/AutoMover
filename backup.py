@@ -121,7 +121,7 @@ class Backup:
         """Creates backup of Camera images and videos.
         """
 
-        media_source = constants.DCIM_MEDIA_BASEPATH
+        media_source = constants.EXTERNAL_DCIM_MEDIA_BASEPATH
         
         image_file_name_base_pattern = "IMG_"
         image_file_name_pattern = image_file_name_base_pattern + self.now.strftime(self.strftime_pattern)
